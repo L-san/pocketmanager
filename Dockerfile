@@ -1,27 +1,9 @@
-# Use maven to compile the java application.
-FROM maven:3-jdk-11-slim AS build-env
+FROM maven:3.6.0-jdk-11-slim AS builder
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml package -DskipTests
 
-# Set the working directory to /app
-WORKDIR /app
-
-# copy the pom.xml file to download dependencies
-COPY pom.xml ./
-
-# download dependencies as specified in pom.xml
-# building dependency layer early will speed up compile time when pom is unchanged
-RUN mvn verify --fail-never
-
-# Copy the rest of the working directory contents into the container
-COPY . ./
-
-# Compile the application.
-RUN mvn -Dmaven.test.skip=true package
-
-# Build runtime image.
-FROM openjdk:11-jre-slim
-
-# Copy the compiled files over.
-COPY --from=build-env /app/target/ /app/
-
-# Starts java app with debugging server at port 5005.
-CMD ["java", "-jar", "/app/pocketmanager-0.0.1-SNAPSHOT.jar"]
+FROM openjdk:11
+COPY --from=builder /home/app/target/pocketmanager*0.0.1-SNAPSHOT.jar app.jar
+#EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app.jar"]

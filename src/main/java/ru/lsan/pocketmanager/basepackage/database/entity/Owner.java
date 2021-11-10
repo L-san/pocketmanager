@@ -5,9 +5,6 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
-import java.sql.Time;
-import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,10 +25,10 @@ public class Owner {
     private int telegram_id;
 
     @Column(nullable = true)
-    private String state;
+    private int message_id;
 
     @Column(nullable = true)
-    private Time daily_alert_time;
+    private String state;
 
     @Column(nullable = true)
     private String timezone;
@@ -39,5 +36,8 @@ public class Owner {
     @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     private Set<Event> events;
+
+    @OneToOne(mappedBy = "owner")
+    private CalendarEntity calendarEntity;
 
 }

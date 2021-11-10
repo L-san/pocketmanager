@@ -1,5 +1,6 @@
 package ru.lsan.pocketmanager.basepackage.bot;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -8,17 +9,22 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.lsan.pocketmanager.basepackage.bot.commandhandler.DeletePastEventsHandler;
 import ru.lsan.pocketmanager.basepackage.bot.commandhandler.MessageHandler;
+import ru.lsan.pocketmanager.basepackage.database.entity.CalendarEntity;
 import ru.lsan.pocketmanager.basepackage.database.entity.Owner;
+import ru.lsan.pocketmanager.basepackage.database.service.CalendarService;
 import ru.lsan.pocketmanager.basepackage.database.service.EventService;
 import ru.lsan.pocketmanager.basepackage.database.service.OwnerService;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Timer;
 
 @Component
@@ -31,6 +37,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private CalendarService calendarService;
 
     @Autowired
     private MessageHandler messageHandler;
@@ -51,6 +60,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         return botToken;
     }
 
+    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
         Owner owner;
@@ -69,25 +79,12 @@ public class TelegramBot extends TelegramLongPollingBot {
             throw new UnsupportedOperationException("проблемы с id");
         }
         if (owner == null) {
+            Calendar calendar = new GregorianCalendar();
+
             ownerService.createOwner(Math.toIntExact(userId));
             owner = ownerService.findByTelegramId(Math.toIntExact(userId));
-
-            Timer timer = new Timer();
-
-            //todo
-            String prevDateTime = new SimpleDateFormat("dd MM yyyy HH mm ss").format(new Date(System.currentTimeMillis()));
-            String[] prevTimes = prevDateTime.split(" ");
-
-            int prevHour = Integer.parseInt(prevTimes[3]);
-            int prevMinute = Integer.parseInt(prevTimes[4]);
-            int prevSecond = Integer.parseInt(prevTimes[5]);
-
-            long delay = 1000*(24 * 60 * 60 - (prevSecond + prevMinute * 60 + prevHour * 60 * 60));
-            System.out.println("delay "+delay);
-            System.out.println("time in zone "+prevDateTime);
-            timer.schedule(new DeletePastEventsHandler(eventService, owner), delay);
+            calendarService.create(owner,calendar.get(Calendar.MONTH));
         }
-
 
         if (update.hasMessage()) {
             message = update.getMessage();
@@ -101,12 +98,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    public void send(SendMessage message) {
+    public Message send(SendMessage message) {
         try {
-            execute(message);
+           return execute(message);
         } catch (TelegramApiException telegramApiException) {
             telegramApiException.printStackTrace();
         }
+        return null;
     }
 
     public void send(DeleteMessage message) {
@@ -117,4 +115,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    public void send(EditMessageReplyMarkup message) {
+        try {
+            execute(message);
+        } catch (TelegramApiException telegramApiException) {
+            telegramApiException.printStackTrace();
+        }
+    }
 }

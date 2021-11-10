@@ -1,0 +1,64 @@
+package ru.lsan.pocketmanager.basepackage.database.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ru.lsan.pocketmanager.basepackage.database.entity.CalendarEntity;
+import ru.lsan.pocketmanager.basepackage.database.entity.Owner;
+import ru.lsan.pocketmanager.basepackage.database.repository.CalendarRepository;
+import ru.lsan.pocketmanager.basepackage.database.service.CalendarService;
+
+@Service
+public class CalendarServiceImpl implements CalendarService {
+
+    @Autowired
+    private CalendarRepository calendarRepository;
+
+    @Override
+    public CalendarEntity create(Owner owner, int month) {
+        CalendarEntity calendarEntity = new CalendarEntity();
+        calendarEntity.setOwner(owner);
+        calendarEntity.setMonth(month);
+        return calendarRepository.save(calendarEntity);
+    }
+
+    @Override
+    public void setMonthAndUpdate(Owner owner, int month) {
+        CalendarEntity calendarEntity = CalendarEntity.builder()
+                .id(owner.getCalendarEntity().getId())
+                .owner(owner)
+                .month(month)
+                .day(owner.getCalendarEntity().getDay())
+                .time(owner.getCalendarEntity().getTime())
+                .build();
+        calendarRepository.save(calendarEntity);
+    }
+
+    @Override
+    public void setDayAndUpdate(Owner owner, int day) {
+        CalendarEntity calendarEntity = CalendarEntity.builder()
+                .id(owner.getCalendarEntity().getId())
+                .owner(owner)
+                .month(owner.getCalendarEntity().getMonth())
+                .day(day)
+                .time(owner.getCalendarEntity().getTime())
+                .build();
+        calendarRepository.save(calendarEntity);
+    }
+
+    @Override
+    public void setTimeAndUpdate(Owner owner, String time) {
+        CalendarEntity calendarEntity = CalendarEntity.builder()
+                .id(owner.getCalendarEntity().getId())
+                .owner(owner)
+                .month(owner.getCalendarEntity().getMonth())
+                .day(owner.getCalendarEntity().getDay())
+                .time(time)
+                .build();
+        calendarRepository.save(calendarEntity);
+    }
+
+    @Override
+    public CalendarEntity findById(Long id) {
+        return calendarRepository.getById(id);
+    }
+}

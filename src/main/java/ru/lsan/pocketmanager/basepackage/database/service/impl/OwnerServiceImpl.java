@@ -2,14 +2,14 @@ package ru.lsan.pocketmanager.basepackage.database.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.lsan.pocketmanager.basepackage.database.entity.Event;
+import ru.lsan.pocketmanager.basepackage.database.entity.CalendarEntity;
 import ru.lsan.pocketmanager.basepackage.database.entity.Owner;
 import ru.lsan.pocketmanager.basepackage.database.repository.OwnerRepository;
+import ru.lsan.pocketmanager.basepackage.database.service.CalendarService;
 import ru.lsan.pocketmanager.basepackage.database.service.OwnerService;
 
-
-import java.sql.Time;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {
@@ -17,9 +17,11 @@ public class OwnerServiceImpl implements OwnerService {
     @Autowired
     private OwnerRepository ownerRepository;
 
+    @Autowired
+    private CalendarService calendarService;
+
     @Override
     public void delete(Owner owner) {
-        //ownerRepository.delete(owner);
         ownerRepository.deleteById(owner.getId());
     }
 
@@ -28,9 +30,7 @@ public class OwnerServiceImpl implements OwnerService {
         Owner owner = new Owner();
         owner.setTelegram_id(telegramId);
         owner.setState("/start");
-        owner.setDaily_alert_time(null);
         ownerRepository.save(owner);
-
     }
 
     @Override
@@ -39,8 +39,9 @@ public class OwnerServiceImpl implements OwnerService {
                 .id(owner.getId())
                 .telegram_id(owner.getTelegram_id())
                 .state(state)
-                .daily_alert_time(owner.getDaily_alert_time())
                 .timezone(owner.getTimezone())
+                .message_id(owner.getMessage_id())
+                .calendarEntity(owner.getCalendarEntity())
                 .build();
        ownerRepository.save(newOwner);
     }
@@ -51,8 +52,22 @@ public class OwnerServiceImpl implements OwnerService {
                 .id(owner.getId())
                 .telegram_id(owner.getTelegram_id())
                 .state(owner.getState())
-                .daily_alert_time(owner.getDaily_alert_time())
                 .timezone(zone)
+                .message_id(owner.getMessage_id())
+                .calendarEntity(owner.getCalendarEntity())
+                .build();
+        ownerRepository.save(newOwner);
+    }
+
+    @Override
+    public void setMsgIdAndUpdate(Owner owner, int id) {
+        Owner newOwner = Owner.builder()
+                .id(owner.getId())
+                .telegram_id(owner.getTelegram_id())
+                .state(owner.getState())
+                .timezone(owner.getTimezone())
+                .message_id(id)
+                .calendarEntity(owner.getCalendarEntity())
                 .build();
         ownerRepository.save(newOwner);
     }
@@ -60,17 +75,5 @@ public class OwnerServiceImpl implements OwnerService {
     @Override
     public Owner findByTelegramId(int telegram_id) {
         return ownerRepository.findByTelegramId(telegram_id);
-    }
-
-    @Override
-    public void setTimeAndUpdate(Owner owner, Time time) {
-        Owner newOwner = Owner.builder()
-                .id(owner.getId())
-                .telegram_id(owner.getTelegram_id())
-                .state(owner.getState())
-                .daily_alert_time(time)
-                .timezone(owner.getTimezone())
-                .build();
-        ownerRepository.save(newOwner);
     }
 }
