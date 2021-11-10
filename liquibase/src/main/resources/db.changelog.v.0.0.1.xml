@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="8" author="L-san">
+
+        <createTable tableName="owner">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="telegram_id" type="bigint"/>
+            <column name="state" type="varchar" defaultValue="/start"/>
+            <column name="timezone" type="varchar"/>
+            <column name="message_id" type="int"/>
+        </createTable>
+
+        <createTable tableName="event">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar"/>
+            <column name="date_time" type="datetime"/>
+            <column name="owner_id" type="bigint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="event"
+                                 baseColumnNames="owner_id"
+                                 constraintName="fk_event_owner"
+                                 referencedTableName="owner"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="7" author="L-san">
+        <createTable tableName="calendarEntity">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="month" type="int"/>
+            <column name="day" type="int"/>
+            <column name="time" type="varchar"/>
+            <column name="owner_id" type="bigint"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="calendarEntity"
+                                 baseColumnNames="owner_id"
+                                 constraintName="fk_calendar_owner"
+                                 referencedTableName="owner"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+
+</databaseChangeLog>

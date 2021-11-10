@@ -14,6 +14,5 @@ import java.util.Optional;
 public interface OwnerRepository extends JpaRepository<Owner, Long> {
     @Query("select b from Owner b where b.telegram_id = :telegram_id")
     Owner findByTelegramId(@Param("telegram_id") int telegram_id);
-    //@Query("select b from Event b where b.owner_id = :owner_id")
-    //Optional<Event> findAllEventsByTelegramId(@Param("telegram_id") int telegram_id);
+
 }

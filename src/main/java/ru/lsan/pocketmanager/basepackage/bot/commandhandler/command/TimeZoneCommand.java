@@ -8,8 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.lsan.pocketmanager.basepackage.bot.TelegramBot;
 import ru.lsan.pocketmanager.basepackage.database.entity.Owner;
 import ru.lsan.pocketmanager.basepackage.database.service.OwnerService;
-import ru.lsan.pocketmanager.basepackage.keyboard.TimeZoneKeyboard;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -28,26 +28,26 @@ public class TimeZoneCommand {
         int chatId = owner.getTelegram_id();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        sendMessage.setText("Выберите вашу временную зону.");
-        sendMessage.setReplyMarkup(TimeZoneKeyboard.create());
+        sendMessage.setText("Введите ваш часовой пояс в виде: GMT+3");
         bot.send(sendMessage);
     }
 
-    public void create(Owner owner, Message message) throws Exception {
+    public void create(Owner owner, Message message) {
         String text = message.getText();
-        if(text.startsWith("/")){
-            throw new Exception("No Zone");
-        }
-        ownerService.setZoneAndUpdate(owner,text);
         int chatId = owner.getTelegram_id();
-
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatId));
-        sendMessage.setText("Была установлена зона: "
-                +text +"\nТекущее время: "
-                + LocalDateTime.now(ZoneId.of(owner.getTimezone())).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
-        bot.send(sendMessage);
+        try {
+            ZoneId.of(text);
+            ownerService.setZoneAndUpdate(owner, text);
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(String.valueOf(chatId));
+            sendMessage.setText(text + "\nТекущее время: "
+                    + LocalDateTime.now(ZoneId.of(owner.getTimezone())).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
+            bot.send(sendMessage);
+        } catch (DateTimeException e) {
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(String.valueOf(chatId));
+            sendMessage.setText("Что-то не могу найти эту зону в своем списке. Проверьте свои данные и повторите ввод.");
+            bot.send(sendMessage);
+        }
     }
-
-
 }
