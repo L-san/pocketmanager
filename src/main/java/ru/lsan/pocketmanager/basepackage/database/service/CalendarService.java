@@ -13,6 +13,14 @@ public interface CalendarService {
 
     void setTimeAndUpdate(Owner owner, String time);
 
+    void setPrevAndUpdate(Owner owner, int prev);
+
+    void setNextAndUpdate(Owner owner, int next);
+
+    int getPrev(Owner owner);
+
+    int getNext(Owner owner);
+
     CalendarEntity findById(Long id);
 
 }

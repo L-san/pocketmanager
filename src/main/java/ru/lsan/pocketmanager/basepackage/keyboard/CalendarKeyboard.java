@@ -11,12 +11,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CalendarKeyboard {
-
-    private static int prev = 0;
-    private static int next = 0;
     private static int weekNum = 2;
 
     public static InlineKeyboardMarkup create(String callback, Owner owner,CalendarService calendarService) {
+        int prev = calendarService.getPrev(owner);
+        int next = calendarService.getNext(owner);
         Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone(owner.getTimezone()));
         if (callback != null) {
             calendar.set(Calendar.MONTH, owner.getCalendarEntity().getMonth());
@@ -44,6 +43,8 @@ public class CalendarKeyboard {
             }
             calendar = new GregorianCalendar(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 1);
             calendar.set(Calendar.WEEK_OF_MONTH,1);
+            calendarService.setPrevAndUpdate(owner,prev);
+            calendarService.setNextAndUpdate(owner,next);
         }
 
         DateFormat monthFormatter = new SimpleDateFormat("MMMM");

@@ -32,7 +32,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
                                  referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet id="7" author="L-san">
+    <changeSet id="9" author="L-san">
         <createTable tableName="calendarEntity">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -40,6 +40,8 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
             <column name="month" type="int"/>
             <column name="day" type="int"/>
             <column name="time" type="varchar"/>
+            <column name="prev" type="int"/>
+            <column name="next" type="int"/>
             <column name="owner_id" type="bigint"/>
         </createTable>
 
