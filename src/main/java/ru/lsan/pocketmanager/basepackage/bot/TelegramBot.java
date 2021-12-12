@@ -13,19 +13,13 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.lsan.pocketmanager.basepackage.bot.commandhandler.DeletePastEventsHandler;
 import ru.lsan.pocketmanager.basepackage.bot.commandhandler.MessageHandler;
-import ru.lsan.pocketmanager.basepackage.database.entity.CalendarEntity;
 import ru.lsan.pocketmanager.basepackage.database.entity.Owner;
 import ru.lsan.pocketmanager.basepackage.database.service.CalendarService;
 import ru.lsan.pocketmanager.basepackage.database.service.EventService;
 import ru.lsan.pocketmanager.basepackage.database.service.OwnerService;
-
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Timer;
 
 @Component
 @EnableAsync
@@ -71,7 +65,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             userId = Math.toIntExact(update.getMessage().getChatId());
         } catch (Exception e) {
-            userId = update.getCallbackQuery().getFrom().getId();
+            userId = Math.toIntExact(update.getCallbackQuery().getFrom().getId());
         }
         if (userId != 0) {
             owner = ownerService.findByTelegramId(userId);
