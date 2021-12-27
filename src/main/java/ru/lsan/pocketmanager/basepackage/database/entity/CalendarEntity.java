@@ -27,7 +27,14 @@ public class CalendarEntity {
     @Column(name = "time")
     private String time;
 
+    @Column(name = "prev")
+    private Integer prev;
+
+    @Column(name = "next")
+    private Integer next;
+
     @OneToOne
     @JoinColumn(name = "owner_id")
     private Owner owner;
 }
+

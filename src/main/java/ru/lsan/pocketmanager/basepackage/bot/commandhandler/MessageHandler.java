@@ -116,21 +116,23 @@ public class MessageHandler {
             text = CREATE_COMMAND;
         }
 
-        if (text.startsWith(CREATE_COMMAND)) { //todo NPE
-            createCallback.handle(owner);
-            ownerService.setStateAndUpdate(owner, EVENT_NAME);
-
-        } else if (ownerState.equals(EVENT_NAME)) {
+        if (ownerState.equals(EVENT_NAME)) {
             try {
                 createCallback.create(text, owner);
                 ownerService.setStateAndUpdate(owner, START_COMMAND);
 
             } catch (Exception exception) {
                 SendMessage sendMessage = new SendMessage();
-                sendMessage.setText("Проверьте правильность введенных данных");
+                sendMessage.setText("Проверьте данные! Возможно, вы собирались запланировать мероприятие в прошлом. У меня нет машины времени!");
                 sendMessage.setChatId(String.valueOf(owner.getTelegram_id()));
                 bot.send(sendMessage);
+                ownerService.setStateAndUpdate(owner, START_COMMAND);
             }
+        }
+
+        if (text.startsWith(CREATE_COMMAND)) { //todo NPE
+            createCallback.handle(owner);
+            ownerService.setStateAndUpdate(owner, EVENT_NAME);
         }
 
         if (text.startsWith(DELETE_CALLBACK)) {
